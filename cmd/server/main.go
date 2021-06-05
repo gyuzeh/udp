@@ -18,5 +18,5 @@ func main() {
 	port := arguments[1]
 
 	udpServer, _ := server.StartUDPServer(port, "udp4")
-	udpServer.Listen()
+	udpServer.Run()
 }

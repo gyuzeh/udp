@@ -2,10 +2,8 @@ package server
 
 import (
 	"fmt"
-	"math/rand"
 	"net"
 	"strconv"
-	"time"
 )
 
 // Server represents the Struct for a UDP Server
@@ -34,14 +32,12 @@ func StartUDPServer(port, network string) (Server, error) {
 	return Server{connection: connection}, nil
 }
 
-// Listen waits for comunications to the Server and responses
-func (server *Server) Listen() {
+// Run waits for comunications to the Server and responses
+func (server *Server) Run() {
 
-	defer server.connection.Close()
+	defer server.close()
 
 	buffer := make([]byte, 1024)
-
-	rand.Seed(time.Now().Unix())
 
 	for {
 		n, addr, err := server.connection.ReadFromUDP(buffer)
@@ -53,15 +49,22 @@ func (server *Server) Listen() {
 
 		fmt.Print("-> ", string(buffer[0:n-1]))
 
-		r := rand.New(rand.NewSource(1001))
-		data := []byte(strconv.Itoa(int(r.Uint32())))
-
+		data := []byte(strconv.Itoa(n))
 		fmt.Printf("data: %s\n", string(data))
 
-		_, err = server.connection.WriteToUDP(data, addr)
-		if err != nil {
-			fmt.Println(err)
-			return
-		}
+		server.write(data, addr)
+	}
+}
+
+func (server *Server) close() {
+	server.connection.Close()
+}
+
+func (server *Server) write(data []byte, addr *net.UDPAddr) {
+	_, err := server.connection.WriteToUDP(data, addr)
+
+	if err != nil {
+		fmt.Println(err)
+		server.close()
 	}
 }
