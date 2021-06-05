@@ -5,7 +5,6 @@ import (
 	"math/rand"
 	"net"
 	"strconv"
-	"strings"
 	"time"
 )
 
@@ -53,11 +52,6 @@ func (server *Server) Listen() {
 		}
 
 		fmt.Print("-> ", string(buffer[0:n-1]))
-
-		if strings.TrimSpace(string(buffer[0:n])) == "STOP" {
-			fmt.Println("Exiting UDP server!")
-			return
-		}
 
 		r := rand.New(rand.NewSource(1001))
 		data := []byte(strconv.Itoa(int(r.Uint32())))
